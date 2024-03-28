@@ -1,1 +1,107 @@
-"use strict";(()=>{var a="lazyloadOptions"in window?window?.lazyloadOptions:{loading:"lazy-loading",failed:"lazy-failed",on:"lazy",loaded:"lazy-loaded",attribute:"lazy"};function n(t){let i=t.getBoundingClientRect();return i.bottom>0&&i.right>0&&i.left<(window.innerWidth||document.documentElement.clientWidth)&&i.top<(window.innerHeight||document.documentElement.clientHeight)}function o(t){a.attribute+"Bkg"in t.dataset?(t.style.backgroundImage=t.dataset[a.attribute+"Bkg"],t.removeAttribute("data-"+a.attribute+"-bkg")):(t.src=t.dataset[a.attribute],[a.attribute]+"-srcset"in t.dataset&&(t.srcset=t.dataset[a.attribute]+"-srcset",t.removeAttribute("data-"+a.attribute+"-srcset"))),"data-"+a.attribute in t.dataset&&t.removeAttribute("data-"+a.attribute)}function d(t){window.addEventListener("load",()=>{let i=document.createElement("script");for(let r=0;r<t.attributes.length;r++)t.attributes[r].name!=="data-"+a.attribute&&i.setAttribute(t.attributes[r].name,t.attributes[r].value);i.src=t.dataset[a.attribute],t.parentElement?.insertBefore(i,t),t.remove()})}function c(t,i){t.forEach(r=>{if(r.isIntersecting){let s=r.target;s.classList.add(a.on),s.classList.add(a.loading),s.addEventListener("load",()=>{s.classList.add(a.loaded),s.classList.remove(a.loading)}),s.addEventListener("error",()=>{s.classList.add(a.failed)}),o(s),i.unobserve(s)}})}function u(t){let i=new IntersectionObserver(c);for(let r of t)r.type==="childList"&&r.addedNodes.forEach(s=>{if(s.nodeType===1){let e=s;e.nodeName==="SCRIPT"?e.dataset[a.attribute]&&d(e):["IMG","VIDEO","AUDIO","DIV"].includes(e.nodeName)&&(n(e)?e.nodeName==="IMG"&&e.setAttribute("fetchpriority","high"):(e.nodeName==="DIV"?e.hasAttribute("style")&&e.style.backgroundImage&&(e.dataset[a.attribute+"Bkg"]=e.style.backgroundImage,e.style.backgroundImage="url()"):(e.dataset[a.attribute]=e.src,e.src="",e.hasAttribute("srcset")&&(e.dataset[a.attribute+"Srcset"]=e.srcset,e.srcset="")),i.observe(e)))}})}function l(){"IntersectionObserver"in window&&"MutationObserver"in window&&new MutationObserver(u).observe(document.body,{childList:!0,subtree:!0})}l();})();
+"use strict";
+(() => {
+  // src/index.ts
+  var options = "lazyloadOptions" in window ? window?.lazyloadOptions : { loading: "lazy-loading", failed: "lazy-failed", on: "lazy", loaded: "lazy-loaded", attribute: "lazy" };
+  var imageRequests = /* @__PURE__ */ new Map();
+  function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return rect.bottom > 0 && rect.right > 0 && rect.left < (window.innerWidth || document.documentElement.clientWidth) && rect.top < (window.innerHeight || document.documentElement.clientHeight);
+  }
+  function unveil(lazyElement) {
+    if (options.attribute + "Bkg" in lazyElement.dataset) {
+      lazyElement.style.backgroundImage = lazyElement.dataset[options.attribute + "Bkg"];
+      lazyElement.removeAttribute("data-" + options.attribute + "-bkg");
+    } else {
+      lazyElement.src = lazyElement.dataset[options.attribute];
+      if ([options.attribute] + "-srcset" in lazyElement.dataset) {
+        lazyElement.srcset = lazyElement.dataset[options.attribute] + "-srcset";
+        lazyElement.removeAttribute("data-" + options.attribute + "-srcset");
+      }
+    }
+    if ("data-" + options.attribute in lazyElement.dataset)
+      lazyElement.removeAttribute("data-" + options.attribute);
+  }
+  function lazyscript(node) {
+    window.addEventListener("load", () => {
+      const script = document.createElement("script");
+      for (let i = 0; i < node.attributes.length; i++) {
+        if (node.attributes[i].name !== "data-" + options.attribute)
+          script.setAttribute(node.attributes[i].name, node.attributes[i].value);
+      }
+      script.src = node.dataset[options.attribute];
+      node.parentElement?.insertBefore(script, node);
+      node.remove();
+    });
+  }
+  function exec(entries, observer) {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const target = entry.target;
+        target.classList.add(options.on);
+        target.classList.add(options.loading);
+        target.addEventListener("load", () => {
+          target.classList.add(options.loaded);
+          target.classList.remove(options.loading);
+        });
+        target.addEventListener("error", () => {
+          target.classList.add(options.failed);
+        });
+        unveil(target);
+        observer.unobserve(target);
+      }
+    });
+  }
+  function cancelRequest(element) {
+    if (imageRequests.has(element)) {
+      const controller = imageRequests.get(element);
+      controller?.abort();
+      imageRequests.delete(element);
+    }
+  }
+  function watcher(mutationsList) {
+    const lazyObserver = new IntersectionObserver(exec);
+    for (const mutation of mutationsList) {
+      if (mutation.type === "childList") {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) {
+            const isElement = node;
+            if (isElement.nodeName === "SCRIPT") {
+              if (isElement.dataset[options.attribute])
+                lazyscript(isElement);
+            } else if (["IMG", "VIDEO", "AUDIO", "DIV"].includes(isElement.nodeName)) {
+              if (isElementInViewport(isElement)) {
+                if (isElement.nodeName === "IMG")
+                  isElement.setAttribute("fetchpriority", "high");
+              } else {
+                const controller = new AbortController();
+                cancelRequest(isElement);
+                imageRequests.set(isElement, controller);
+                if (isElement.nodeName === "DIV") {
+                  if (isElement.hasAttribute("style") && isElement.style.backgroundImage) {
+                    isElement.dataset[options.attribute + "Bkg"] = isElement.style.backgroundImage;
+                    isElement.style.setProperty("background-image", "none");
+                  }
+                } else {
+                  isElement.dataset[options.attribute] = isElement.src;
+                  isElement.src = "";
+                  if (isElement.hasAttribute("srcset")) {
+                    isElement.dataset[options.attribute + "Srcset"] = isElement.srcset;
+                    isElement.srcset = "";
+                  }
+                }
+                lazyObserver.observe(isElement);
+              }
+            }
+          }
+        });
+      }
+    }
+  }
+  function fastLazyLoad() {
+    if ("IntersectionObserver" in window && "MutationObserver" in window) {
+      const mutationObserver = new MutationObserver(watcher);
+      mutationObserver.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+  fastLazyLoad();
+})();

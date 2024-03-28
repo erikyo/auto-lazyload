@@ -6,6 +6,9 @@
 type LazyloadOptions = { loading: string, failed: string, on: string, loaded: string, attribute: string }
 const options = 'lazyloadOptions' in window ? window?.lazyloadOptions as LazyloadOptions : {loading: 'lazy-loading', failed: 'lazy-failed', on: 'lazy', loaded: 'lazy-loaded', attribute: 'lazy'}
 
+// Create an object to store the image elements and their corresponding AbortControllers
+const imageRequests = new Map();
+
 /**
  * Check if an element is in the viewport
  *
@@ -102,6 +105,15 @@ export function exec(entries: IntersectionObserverEntry[], observer: Intersectio
     })
 }
 
+// Function to cancel image request
+function cancelRequest(element: HTMLElement) {
+    if (imageRequests.has(element)) {
+        const controller = imageRequests.get(element);
+        controller?.abort(); // Abort the ongoing request
+        imageRequests.delete(element);
+    }
+}
+
 function watcher(mutationsList: MutationRecord[]) {
     const lazyObserver = new IntersectionObserver(exec)
 
@@ -120,10 +132,19 @@ function watcher(mutationsList: MutationRecord[]) {
                             // add the fetchpriority attribute to the element
                             if (isElement.nodeName === 'IMG') isElement.setAttribute('fetchpriority', 'high')
                         } else {
+                            // Create a new AbortController instance for each element
+                            const controller = new AbortController();
+                            // Cancel any ongoing request for this image
+                            cancelRequest(isElement);
+
+                            // Store the element and its AbortController
+                            imageRequests.set(isElement, controller);
                             if (isElement.nodeName === 'DIV') {
                                 if (isElement.hasAttribute('style') && (isElement as HTMLDivElement).style.backgroundImage) {
+                                    // cancel the request of this image
+                                    // and set the background image to none
                                     isElement.dataset[options.attribute + 'Bkg'] = isElement.style.backgroundImage
-                                    isElement.style.backgroundImage = 'url()'
+                                    isElement.style.setProperty('background-image', 'none');
                                 }
                             } else {
                                 isElement.dataset[options.attribute] = (isElement as HTMLImageElement).src as string
