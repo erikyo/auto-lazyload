@@ -48,15 +48,6 @@ export function unveil(lazyElement: HTMLElement) {
 }
 
 /**
- * Fallback for browsers that don't support Intersection Observer
- * @param {Element} node The node to ensure is visible
- */
-export function fallbackNode(node: HTMLElement) {
-    unveil(node)
-    node.classList.add(options.loaded)
-}
-
-/**
  * Add a script tag to the page
  * @param node the script node
  */
@@ -137,6 +128,10 @@ function watcher(mutationsList: MutationRecord[]) {
                             } else {
                                 isElement.dataset[options.attribute] = (isElement as HTMLImageElement).src as string
                                 (isElement as HTMLImageElement).src = ''
+                                if (isElement.hasAttribute('srcset')) {
+                                    isElement.dataset[options.attribute + 'Srcset'] = (isElement as HTMLImageElement).srcset as string
+                                    (isElement as HTMLImageElement).srcset = ''
+                                }
                             }
                             // Else observe the newly added node with the IntersectionObserver
                             lazyObserver.observe(isElement)
