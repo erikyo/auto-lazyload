@@ -64,7 +64,7 @@ function autoLazy(mutationsList: MutationRecord[]) {
             } else {
                 if (isElement.nodeName !== 'DIV') {
                     // If the element has the native loading attribute and is not a lazy element, continue
-                    // if ((isElement as HTMLImageElement).loading === 'lazy') continue;
+                    if ((isElement as HTMLImageElement).loading === 'lazy') continue;
                     // If the element is a video, add a fake src to the element as a poster image
                     if (!(isElement as HTMLVideoElement).poster) {
                         // if the poster is not set, add a fake src to the element

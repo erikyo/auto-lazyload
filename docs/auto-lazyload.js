@@ -28,6 +28,8 @@
           observer.unobserve(isElement);
         } else {
           if (isElement.nodeName !== "DIV") {
+            if (isElement.loading === "lazy")
+              continue;
             if (!isElement.poster) {
               isElement.poster = fakeSrc;
             }
