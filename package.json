@@ -1,8 +1,8 @@
 {
-    "name": "f2-lazyload",
-    "version": "1.1.0",
-    "description": "A second attempt of lazyload library, this one didn't need the attribute selector data-lazy.",
-    "main": "lib/fast-lazyload.js",
+    "name": "auto-lazyload",
+    "version": "1.0.1",
+    "description": "A plug and play lazyload library, didn't require special markup. It's fast, simple and easy to use.",
+    "main": "lib/auto-lazyload.js",
     "author": "Erik <erik@codekraft.it>",
     "sideEffects": false,
     "keywords": [
@@ -17,18 +17,18 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/erikyo/fast-lazyload.git"
+        "url": "https://github.com/erikyo/auto-lazyload.git"
     },
     "bugs": {
-        "url": "https://github.com/erikyo/fast-lazyload/issues"
+        "url": "https://github.com/erikyo/auto-lazyload/issues"
     },
-    "unpkg": "lib/fast-lazyload.js",
-    "jsdelivr": "lib/fast-lazyload.js",
+    "unpkg": "lib/auto-lazyload.js",
+    "jsdelivr": "lib/auto-lazyload.js",
     "license": "MIT",
     "scripts": {
-        "watch": "npx esbuild src/index.ts --bundle --watch --outfile=docs/f2-lazyload.js",
-        "build": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=lib/f2-lazyload.js",
-        "postbuild": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=docs/f2-lazyload.js",
+        "watch": "npx esbuild src/index.ts --bundle --watch --outfile=docs/auto-lazyload.js",
+        "build": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=lib/auto-lazyload.js",
+        "postbuild": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=docs/auto-lazyload.js",
         "test": "vitest"
     },
     "devDependencies": {

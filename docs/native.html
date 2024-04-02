@@ -9,7 +9,7 @@
     }
 
     body {
-      margin: 1rem auto;
+      margin: 1rem;
       display: flex;
       flex-direction: column;
       gap: 1rem;
@@ -50,12 +50,6 @@
       background-image: url("data:image/svg+xml;utf-8,<svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z'><animateTransform attributeName='transform' type='rotate' dur='0.75s' values='0 12 12;360 12 12' repeatCount='indefinite'/></path></svg>");
     }
 
-    .lazy-background {
-      background-size: 50px;
-        background-image: url("data:image/svg+xml;utf-8,<svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z'><animateTransform attributeName='transform' type='rotate' dur='0.75s' values='0 12 12;360 12 12' repeatCount='indefinite'/></path></svg>");
-        background-color: aqua;
-    }
-
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -74,27 +68,27 @@
       }
     }
   </style>
-  <link rel ="preload" href="auto-lazyload.js" as="script">
+    <link rel="preload" href="images/8machine-_-WLHwxs768Jk-unsplash.jpg" as="image">
+    <link rel="preload" href="images/andrew-kliatskyi-PxwFM6RxuLw-unsplash.jpg" as="image">
 </head>
 <body>
-  <script src="auto-lazyload.js"></script>
-  <h1>Fast Lazy Load</h1>
-  <img src="images/8machine-_-WLHwxs768Jk-unsplash.jpg" width="960" height="540" alt="1"/>
-  <img src="images/andrew-kliatskyi-PxwFM6RxuLw-unsplash.jpg" width="960" height="540" alt="2"/>
-  <img src="images/crina-miriam-cretu-ynp_0R23rQ4-unsplash.jpg" width="960" height="540" alt="3" class="animated fade-in"/>
-  <img src="images/esmihel-muhammad-9oPvRKuiO5Q-unsplash.jpg" width="960" height="540" alt="4" class="animated fade-in translate"/>
-  <img src="images/fons-heijnsbroek-abstract-art-P8UxOBZNOig-unsplash.jpg" width="960" height="540" alt="5" loading="lazy"/>
-  <img src="images/jason-leem-50bzI1F6urA-unsplash.jpg" width="960" height="540" alt="6"/>
+  <h1>Native Lazy Load</h1>
+  <img loading="eager" src="images/8machine-_-WLHwxs768Jk-unsplash.jpg" width="960" height="540" alt="1"/>
+  <img loading="eager" src="images/andrew-kliatskyi-PxwFM6RxuLw-unsplash.jpg" width="960" height="540" alt="2"/>
+  <img loading="lazy" src="images/crina-miriam-cretu-ynp_0R23rQ4-unsplash.jpg" width="960" height="540" alt="3" class="animated fade-in"/>
+  <img loading="lazy" src="images/esmihel-muhammad-9oPvRKuiO5Q-unsplash.jpg" width="960" height="540" alt="4" class="animated fade-in translate"/>
+  <img loading="lazy" src="images/fons-heijnsbroek-abstract-art-P8UxOBZNOig-unsplash.jpg" width="960" height="540" alt="5"/>
+  <img loading="lazy" src="images/jason-leem-50bzI1F6urA-unsplash.jpg" width="960" height="540" alt="6"/>
   <div style="background-image:url(images/hans-isaacson-y5i7RlFzskg-unsplash.jpg); background-size: cover; width: 960px; height: 540px"></div>
   <div style="background-image:url(images/shubham-dhage-4HDQn_vvTZA-unsplash.jpg); background-size: cover; width: 960px; height: 540px"></div>
   <video autoplay muted src="https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4" style="width: 960px; height: 540px; background-color: dimgray"></video>
   <video autoplay muted src="https://sample-videos.com/video321/mp4/480/big_buck_bunny_480p_5mb.mp4" style="width: 960px; height: 540px; background-color: dimgray"></video>
   <video autoplay muted src="https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_5mb.mp4" style="width: 960px; height: 540px; background-color: dimgray"></video>
-  <script data-lazy="https://code.jquery.com/jquery-3.7.1.min.js" data-lazy-delay="600"></script>
-  <script data-lazy="https://code.jquery.com/jquery-3.7.0.min.js" data-lazy-delay="500"></script>
-  <script data-lazy="https://code.jquery.com/jquery-3.6.0.min.js" data-lazy-delay="400"></script>
-  <script data-lazy="https://code.jquery.com/jquery-3.5.0.min.js" data-lazy-delay="300"></script>
-  <script data-lazy="https://code.jquery.com/jquery-3.4.0.min.js" data-lazy-delay="200"></script>
-  <script data-lazy="https://code.jquery.com/jquery-2.2.4.min.js" data-lazy-delay="100"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 </body>
 </html>

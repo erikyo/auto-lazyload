@@ -45,6 +45,13 @@ if ('IntersectionObserver' in window && 'MutationObserver' in window) {
                     observer.unobserve(isElement)
                 } else {
                     if (isElement.nodeName !== 'DIV') {
+                        // If the element has the native loading attribute and is not a lazy element, continue
+                        if ((isElement as HTMLImageElement).loading === 'lazy') continue;
+                        if (!(isElement as HTMLVideoElement).poster) {
+                            // if the poster is not set, add a fake src to the element
+                            (isElement as HTMLVideoElement).poster = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+                        }
+                        // If the element is not a lazy element, add the src to the element
                         isElement.dataset[options.attribute] = (isElement as HTMLImageElement).src as string
                         (isElement as HTMLImageElement).src = ''
                         if (isElement.hasAttribute('srcset')) {
