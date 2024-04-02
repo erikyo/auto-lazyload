@@ -30,9 +30,7 @@ if ('IntersectionObserver' in window && 'MutationObserver' in window) {
         function locator(entries: IntersectionObserverEntry[], observer: IntersectionObserver) {
             for (const entry of entries) {
                 const isElement = entry.target as HTMLElement
-                if ((entry.boundingClientRect as DOMRect).top < window.innerHeight) {
-                    console.log(isElement.nodeName, 'in viewport')
-
+                if (isElementInViewport(entry.boundingClientRect as DOMRect)) {
                     // add the fetchpriority attribute to the element
                     if (isElement.nodeName === 'IMG') {
                         isElement.setAttribute('fetchpriority', 'high')
@@ -44,6 +42,7 @@ if ('IntersectionObserver' in window && 'MutationObserver' in window) {
 
                         document.head.appendChild(linkHeader)
                     }
+                    observer.unobserve(isElement)
                 } else {
                     if (isElement.nodeName !== 'DIV') {
                         isElement.dataset[options.attribute] = (isElement as HTMLImageElement).src as string
@@ -57,7 +56,6 @@ if ('IntersectionObserver' in window && 'MutationObserver' in window) {
                     lazyObserver.observe(isElement)
                 }
             }
-            positionObserver.disconnect();
         }
 
         /**
@@ -90,7 +88,7 @@ if ('IntersectionObserver' in window && 'MutationObserver' in window) {
 
                     // Unveils the image if it is in the viewport
                     unveil(target as HTMLElement)
-                    positionObserver.unobserve(target)
+                    observer.unobserve(target)
                 }
             })
         }
@@ -101,30 +99,23 @@ if ('IntersectionObserver' in window && 'MutationObserver' in window) {
 
         for (const mutation of mutationsList) {
 
-            mutation.addedNodes.forEach((node) => {
-                    if (node.nodeName === 'DIV') {
-                        (node as HTMLDivElement).dataset[options.attribute+'Bkg'] = (node as HTMLDivElement).style.backgroundImage;
-                        (node as HTMLDivElement).style.backgroundImage = '';
-                    }
-                }
-            )
-
             mutation.addedNodes.forEach((node: Node) => {
+                if (node.nodeName === 'DIV') {
+                    (node as HTMLDivElement).dataset[options.attribute+'Bkg'] = (node as HTMLDivElement).style.backgroundImage;
+                    (node as HTMLDivElement).style.backgroundImage = '';
+                }
 
                 // Check if the node is a lazy element
                 if (node.nodeType === 1) {
-                    positionObserver.observe(node as Element)
 
                     /** @var {HTMLElement | HTMLScriptElement} isElement the element to lazy load */
                     let isElement = node as HTMLElement | HTMLScriptElement
 
                     if (mutation.type === 'childList') {
-
                         if (isElement.nodeName === 'SCRIPT') {
                             // If the element is a script tag, load the script in the background
                             if (isElement.dataset[options.attribute])
                                 lazyscript(isElement as HTMLScriptElement)
-
                         } else if (['IMG', 'VIDEO', 'AUDIO', 'DIV'].includes(isElement.nodeName)) {
                             positionObserver.observe(isElement)
                         }
@@ -185,4 +176,20 @@ function lazyscript(node: HTMLScriptElement) {
             node.remove()
         })
     })
+}
+
+/**
+ * Check if an element is in the viewport
+ *
+ * @param {DOMRect} elBBox The element BoundingClientRect to check
+ *
+ * @return {boolean} True if the element is in the viewport
+ */
+export function isElementInViewport(elBBox: DOMRect): boolean {
+    return (
+        elBBox.bottom > 0 &&
+        elBBox.right > 0 &&
+        elBBox.left < (window.innerWidth || document.documentElement.clientWidth) &&
+        elBBox.top < (window.innerHeight || document.documentElement.clientHeight)
+    )
 }
