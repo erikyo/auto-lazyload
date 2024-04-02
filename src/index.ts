@@ -10,6 +10,9 @@ type LazyloadOptions = { loading: string, failed: string, on: string, loaded: st
  */
 const options = 'lazyloadOptions' in window ? window?.lazyloadOptions as LazyloadOptions : {loading: 'lazy-loading', failed: 'lazy-failed', on: 'lazy', loaded: 'lazy-loaded', attribute: 'lazy'}
 
+/* Fake src for a small pixel image */
+let fakeSrc = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 /**
  *  Start the lazy loading
  *
@@ -47,16 +50,17 @@ if ('IntersectionObserver' in window && 'MutationObserver' in window) {
                     if (isElement.nodeName !== 'DIV') {
                         // If the element has the native loading attribute and is not a lazy element, continue
                         if ((isElement as HTMLImageElement).loading === 'lazy') continue;
+                        // If the element is a video, add a fake src to the element as a poster image
                         if (!(isElement as HTMLVideoElement).poster) {
                             // if the poster is not set, add a fake src to the element
-                            (isElement as HTMLVideoElement).poster = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+                            (isElement as HTMLVideoElement).poster = fakeSrc
                         }
                         // If the element is not a lazy element, add the src to the element
                         isElement.dataset[options.attribute] = (isElement as HTMLImageElement).src as string
-                        (isElement as HTMLImageElement).src = ''
+                        (isElement as HTMLImageElement).src = (isElement.nodeName !== 'IMG') ? fakeSrc : ''
                         if (isElement.hasAttribute('srcset')) {
                             isElement.dataset[options.attribute + 'Srcset'] = (isElement as HTMLImageElement).srcset as string
-                            (isElement as HTMLImageElement).srcset = ''
+                            (isElement as HTMLImageElement).srcset = fakeSrc
                         }
                     }
                     // Else observe the newly added node with the IntersectionObserver
@@ -130,7 +134,7 @@ if ('IntersectionObserver' in window && 'MutationObserver' in window) {
                 }
             })
         }
-    }).observe(document.body, {childList: true})
+    }).observe(document.body, {childList: true, subtree: true})
 }
 
 /**
@@ -147,7 +151,7 @@ export function unveil(lazyElement: HTMLElement) {
         // Add the src to the element
         (lazyElement as HTMLImageElement).src = lazyElement.dataset[options.attribute] as string
         // If the srcset attribute exists, add it
-        if ([options.attribute] + '-srcset' in lazyElement.dataset) {
+        if ([options.attribute] + 'Srcset' in lazyElement.dataset) {
             (lazyElement as HTMLImageElement).srcset = lazyElement.dataset[options.attribute] + '-srcset' as string
             lazyElement.removeAttribute('data-' + options.attribute + '-srcset')
         }
