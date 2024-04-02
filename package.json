@@ -1,6 +1,6 @@
 {
     "name": "auto-lazyload",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "A plug and play lazyload library, didn't require special markup. It's fast, simple and easy to use.",
     "main": "lib/auto-lazyload.js",
     "author": "Erik <erik@codekraft.it>",
@@ -28,7 +28,7 @@
     "scripts": {
         "watch": "npx esbuild src/index.ts --bundle --watch --outfile=docs/auto-lazyload.js",
         "build": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=lib/auto-lazyload.js",
-        "postbuild": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=docs/auto-lazyload.js",
+        "postbuild": "npx esbuild src/index.ts --bundle --outfile=docs/auto-lazyload.js",
         "test": "vitest"
     },
     "devDependencies": {

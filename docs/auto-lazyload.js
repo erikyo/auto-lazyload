@@ -2,6 +2,7 @@
 (() => {
   // src/index.ts
   var options = "lazyloadOptions" in window ? window?.lazyloadOptions : { loading: "lazy-loading", failed: "lazy-failed", on: "lazy", loaded: "lazy-loaded", attribute: "lazy" };
+  var fakeSrc = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
   if ("IntersectionObserver" in window && "MutationObserver" in window) {
     new MutationObserver((mutationsList) => {
       function locator(entries, observer) {
@@ -22,13 +23,13 @@
               if (isElement.loading === "lazy")
                 continue;
               if (!isElement.poster) {
-                isElement.poster = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+                isElement.poster = fakeSrc;
               }
               isElement.dataset[options.attribute] = isElement.src;
-              isElement.src = "";
+              isElement.src = isElement.nodeName !== "IMG" ? fakeSrc : "";
               if (isElement.hasAttribute("srcset")) {
                 isElement.dataset[options.attribute + "Srcset"] = isElement.srcset;
-                isElement.srcset = "";
+                isElement.srcset = fakeSrc;
               }
             }
             lazyObserver.observe(isElement);
@@ -74,7 +75,7 @@
           }
         });
       }
-    }).observe(document.body, { childList: true });
+    }).observe(document.body, { childList: true, subtree: true });
   }
   function unveil(lazyElement) {
     if (options.attribute + "Bkg" in lazyElement.dataset) {
@@ -82,7 +83,7 @@
       lazyElement.removeAttribute("data-" + options.attribute + "-bkg");
     } else {
       lazyElement.src = lazyElement.dataset[options.attribute];
-      if ([options.attribute] + "-srcset" in lazyElement.dataset) {
+      if ([options.attribute] + "Srcset" in lazyElement.dataset) {
         lazyElement.srcset = lazyElement.dataset[options.attribute] + "-srcset";
         lazyElement.removeAttribute("data-" + options.attribute + "-srcset");
       }
