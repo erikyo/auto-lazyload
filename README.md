@@ -8,16 +8,59 @@ Traditional lazy loaders may inadvertently delay crucial content, leading to det
 Read more about [this](https://web.dev/articles/lazy-loading-images) and about the [Largest Contentful Paint (LCP)](https://web.dev/lcp/).
 
 ## How?
-Include the library into your project, or add `auto-lazyload` to your `package.json` and you're done.
-
-## Using the Library from the Browser
-`<script src="https://unpkg.com/auto-lazyload"></script>`
-
-## Installation
-`npm install auto-lazyload`
+This library allows you to lazyload images, videos,
+and background images using the [Intersection Observer API](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) and the MutationObserver API in order to check when an element is in view.
+What differs with the common lazy loading implementation is that it doesn't require markup, it's very lightweight and fast to load, remaining full-featured and easy to use.
 
 ## Usage
-`import AutoLazyLoad from 'auto-lazyload';`
+Add the script just after the `body` tag.
+
+### Using the iife version
+```
+<body>
+<script src="https://unpkg.com/auto-lazyload"></script>
+...
+```
+
+### Using the esm version
+install the library with `npm install auto-lazyload` or `yarn add auto-lazyload`.
+
+Then import the library with:
+```
+<body>
+<script type="module">
+    import AutoLazyLoad from 'auto-lazyload';
+    AutoLazyLoad({
+        loading: 'lazy-loading',
+        failed: 'lazy-failed',
+        on: 'lazy',
+        loaded: 'lazy-loaded',
+        attribute: 'lazy'
+    });
+</script>
+...
+```
+
+## User Configurable Options
+
+If needed, you have the flexibility to customize the lazy loading behavior by setting the `lazyloadOptions` object in the `window` object before the document is loaded. This allows you to override the default options to tailor lazy loading according to your specific requirements.
+
+### Example:
+
+```javascript
+window.lazyloadOptions = {
+    on: 'my-lazy', // the class name for the active lazy loaded image
+    loading: 'my-lazy-loading', // the class name for the lazy loading image
+    failed: 'my-lazy-failed', // the class name for the failed image
+    loaded: 'my-lazy-loaded', // the class name for the lazy loaded image
+    attribute: 'data-lazy' // the dataset name for the lazy loaded image (used internally but configurable)
+};
+```
+
+### Compatibility
+
+- The script is designed to work in modern browsers that support both Intersection Observer and Mutation Observer APIs.
+- If the `IntersectionObserver` API is not supported, the page will be loaded without lazy loading images but nothing else.
 
 ## Contributing
 See [CONTRIBUTING.md](CONTRIBUTING.md)
