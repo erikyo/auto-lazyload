@@ -1,30 +1,138 @@
 /**
- * If needed, you can set the lazyloadOptions in the window object before the document is loaded to override the default options
+ * The options for the lazy loading function.
+ * Check the documentation for more information, don't be lazy :P
  *
  * @example window.lazyloadOptions = {loading: 'my-lazy-loading', failed: 'my-lazy-failed', on: 'my-lazy', loaded: 'my-lazy-loaded', attribute: 'lazy' }
  */
 type LazyloadOptions = { loading: string, failed: string, on: string, loaded: string, attribute: string }
+/**
+ * If needed, you can set the lazyloadOptions in the window object before the document is loaded to override the default options
+ */
 const options = 'lazyloadOptions' in window ? window?.lazyloadOptions as LazyloadOptions : {loading: 'lazy-loading', failed: 'lazy-failed', on: 'lazy', loaded: 'lazy-loaded', attribute: 'lazy'}
 
-// Create an object to store the image elements and their corresponding AbortControllers
-const imageRequests = new Map();
-
 /**
- * Check if an element is in the viewport
+ *  Start the lazy loading
  *
- * @param el {Element} The element to check
- * @return {boolean} True if the element is in the viewport
+ *  @type {NodeListOf<Element>} lazyElements The elements to lazy load *
  */
-export function isElementInViewport(el: HTMLElement): boolean {
-    const rect = el.getBoundingClientRect()
+if ('IntersectionObserver' in window && 'MutationObserver' in window) {
+    /**
+     * Create a MutationObserver to watch for changes in the DOM
+      */
+    new MutationObserver((mutationsList) => {
 
-    // Check if any part of the element is in the viewport
-    return (
-        rect.bottom > 0 &&
-        rect.right > 0 &&
-        rect.left < (window.innerWidth || document.documentElement.clientWidth) &&
-        rect.top < (window.innerHeight || document.documentElement.clientHeight)
-    )
+        /**
+         * A function that handles intersection observer entries and manipulates DOM elements accordingly.
+         *
+         * @param {IntersectionObserverEntry[]} entries - The array of intersection observer entries to process.
+         * @param {IntersectionObserver} observer - The intersection observer instance being used.
+         */
+        function locator(entries: IntersectionObserverEntry[], observer: IntersectionObserver) {
+            for (const entry of entries) {
+                const isElement = entry.target as HTMLElement
+                if ((entry.boundingClientRect as DOMRect).top < window.innerHeight) {
+                    console.log(isElement.nodeName, 'in viewport')
+
+                    // add the fetchpriority attribute to the element
+                    if (isElement.nodeName === 'IMG') {
+                        isElement.setAttribute('fetchpriority', 'high')
+
+                        const linkHeader = document.createElement('link')
+                        linkHeader.setAttribute('rel', 'preload')
+                        linkHeader.setAttribute('as', 'image')
+                        linkHeader.setAttribute('href', (isElement as HTMLImageElement).src as string)
+
+                        document.head.appendChild(linkHeader)
+                    }
+                } else {
+                    if (isElement.nodeName !== 'DIV') {
+                        isElement.dataset[options.attribute] = (isElement as HTMLImageElement).src as string
+                        (isElement as HTMLImageElement).src = ''
+                        if (isElement.hasAttribute('srcset')) {
+                            isElement.dataset[options.attribute + 'Srcset'] = (isElement as HTMLImageElement).srcset as string
+                            (isElement as HTMLImageElement).srcset = ''
+                        }
+                    }
+                    // Else observe the newly added node with the IntersectionObserver
+                    lazyObserver.observe(isElement)
+                }
+            }
+            positionObserver.disconnect();
+        }
+
+        /**
+         * Define the lazy loading function
+         *
+         * @param entries The entries from the IntersectionObserver
+         * @param observer The IntersectionObserver instance
+         */
+        function exec(entries: IntersectionObserverEntry[], observer: IntersectionObserver) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = entry.target as HTMLElement
+
+                    // Adds the 'on' class if the image is in the viewport
+                    target.classList.add(options.on)
+
+                    // Adds the 'loading' class until the image is loaded
+                    target.classList.add(options.loading)
+
+                    // Adds the 'on' class after the image is loaded
+                    target.addEventListener('load', () => {
+                        target.classList.add(options.loaded)
+                        target.classList.remove(options.loading)
+                    })
+
+                    // Adds the 'failed' class if the image fails to load
+                    target.addEventListener('error', () => {
+                        target.classList.add(options.failed)
+                    })
+
+                    // Unveils the image if it is in the viewport
+                    unveil(target as HTMLElement)
+                    positionObserver.unobserve(target)
+                }
+            })
+        }
+
+        const positionObserver = new IntersectionObserver(locator);
+
+        const lazyObserver = new IntersectionObserver(exec)
+
+        for (const mutation of mutationsList) {
+
+            mutation.addedNodes.forEach((node) => {
+                    if (node.nodeName === 'DIV') {
+                        (node as HTMLDivElement).dataset[options.attribute+'Bkg'] = (node as HTMLDivElement).style.backgroundImage;
+                        (node as HTMLDivElement).style.backgroundImage = '';
+                    }
+                }
+            )
+
+            mutation.addedNodes.forEach((node: Node) => {
+
+                // Check if the node is a lazy element
+                if (node.nodeType === 1) {
+                    positionObserver.observe(node as Element)
+
+                    /** @var {HTMLElement | HTMLScriptElement} isElement the element to lazy load */
+                    let isElement = node as HTMLElement | HTMLScriptElement
+
+                    if (mutation.type === 'childList') {
+
+                        if (isElement.nodeName === 'SCRIPT') {
+                            // If the element is a script tag, load the script in the background
+                            if (isElement.dataset[options.attribute])
+                                lazyscript(isElement as HTMLScriptElement)
+
+                        } else if (['IMG', 'VIDEO', 'AUDIO', 'DIV'].includes(isElement.nodeName)) {
+                            positionObserver.observe(isElement)
+                        }
+                    }
+                }
+            })
+        }
+    }).observe(document.body, {childList: true})
 }
 
 /**
@@ -52,137 +160,29 @@ export function unveil(lazyElement: HTMLElement) {
 
 /**
  * Add a script tag to the page
+ *
  * @param node the script node
  */
 function lazyscript(node: HTMLScriptElement) {
+    const delay = Number(node.dataset[options.attribute+'Delay']) ?? 0;
+
     // Lazy load the script in the background after the page is loaded
     window.addEventListener('load', () => {
         const script = document.createElement('script')
-        // copy the attributes
+
+        // Copy the attributes
         for (let i = 0; i < node.attributes.length; i++) {
-            if (node.attributes[i].name !== 'data-' + options.attribute) script.setAttribute(node.attributes[i].name, node.attributes[i].value)
+            if (!node.attributes[i].name.includes('data-' + options.attribute))
+                script.setAttribute(node.attributes[i].name, node.attributes[i].value)
         }
-        // set the src
+
+        // Set the src
         script.src = node.dataset[options.attribute] as string
-        // add the script to the page in the same position as the old script node
-        node.parentElement?.insertBefore(script, node)
-        node.remove()
+
+        new Promise(resolve => setTimeout(resolve, Number(delay))).then(() => {
+            // Add the script to the page in the same position as the old script node
+            node.parentElement?.insertBefore(script, node)
+            node.remove()
+        })
     })
 }
-
-/**
- * Define the lazy loading function
- *
- * @param entries The entries from the IntersectionObserver
- * @param observer The IntersectionObserver instance
- */
-export function exec(entries: IntersectionObserverEntry[], observer: IntersectionObserver) {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const target = entry.target as HTMLElement
-
-            // Adds the 'on' class if the image is in the viewport
-            target.classList.add(options.on)
-
-            // Adds the 'loading' class until the image is loaded
-            target.classList.add(options.loading)
-
-            // Adds the 'on' class after the image is loaded
-            target.addEventListener('load', () => {
-                target.classList.add(options.loaded)
-                target.classList.remove(options.loading)
-            })
-
-            // Adds the 'failed' class if the image fails to load
-            target.addEventListener('error', () => {
-                target.classList.add(options.failed)
-            })
-
-            // Unveils the image if it is in the viewport
-            unveil(target as HTMLElement)
-            observer.unobserve(target)
-        }
-    })
-}
-
-// Function to cancel image request
-function cancelRequest(element: HTMLElement) {
-    if (imageRequests.has(element)) {
-        const controller = imageRequests.get(element);
-        controller?.abort(); // Abort the ongoing request
-        imageRequests.delete(element);
-    }
-}
-
-function watcher(mutationsList: MutationRecord[]) {
-    const lazyObserver = new IntersectionObserver(exec)
-
-    for (const mutation of mutationsList) {
-        if (mutation.type === 'childList') {
-            mutation.addedNodes.forEach((node: Node) => {
-                // Check if the node is a lazy element
-                if (node.nodeType === 1) {
-                    /** @var  {HTMLElement | HTMLScriptElement} isElement the element to lazy load */
-                    const isElement = node as HTMLElement | HTMLScriptElement
-                    if (isElement.nodeName === 'SCRIPT') {
-                        // If the element is a script tag, load the script in the background
-                        if (isElement.dataset[options.attribute]) lazyscript(isElement as HTMLScriptElement)
-                    } else if (['IMG', 'VIDEO', 'AUDIO', 'DIV'].includes(isElement.nodeName)) {
-                        if (isElementInViewport(isElement)) {
-                            // add the fetchpriority attribute to the element
-                            if (isElement.nodeName === 'IMG') isElement.setAttribute('fetchpriority', 'high')
-                        } else {
-                            // Create a new AbortController instance for each element
-                            const controller = new AbortController();
-                            // Cancel any ongoing request for this image
-                            cancelRequest(isElement);
-
-                            // Store the element and its AbortController
-                            imageRequests.set(isElement, controller);
-                            if (isElement.nodeName === 'DIV') {
-                                if (isElement.hasAttribute('style') && (isElement as HTMLDivElement).style.backgroundImage) {
-                                    // cancel the request of this image
-                                    // and set the background image to none
-                                    isElement.dataset[options.attribute + 'Bkg'] = isElement.style.backgroundImage
-                                    isElement.style.setProperty('background-image', 'none');
-                                }
-                            } else {
-                                isElement.dataset[options.attribute] = (isElement as HTMLImageElement).src as string
-                                (isElement as HTMLImageElement).src = ''
-                                if (isElement.hasAttribute('srcset')) {
-                                    isElement.dataset[options.attribute + 'Srcset'] = (isElement as HTMLImageElement).srcset as string
-                                    (isElement as HTMLImageElement).srcset = ''
-                                }
-                            }
-                            // Else observe the newly added node with the IntersectionObserver
-                            lazyObserver.observe(isElement)
-                        }
-                    }
-                }
-            })
-        }
-    }
-}
-
-/**
- *  Start the lazy loading
- *
- *  @type {NodeListOf<Element>} lazyElements The elements to lazy load *
- */
-export function fastLazyLoad() {
-    /**
-     * Create an IntersectionObserver instance and observe the lazy elements
-     */
-    if ('IntersectionObserver' in window && 'MutationObserver' in window) {
-
-        // Create a MutationObserver to watch for changes in the DOM
-        const mutationObserver = new MutationObserver(watcher)
-
-        /**
-         * Start observing the DOM
-         */
-        mutationObserver.observe(document.body, {childList: true, subtree: true})
-    }
-}
-
-fastLazyLoad()

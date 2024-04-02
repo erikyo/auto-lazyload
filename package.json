@@ -26,7 +26,7 @@
     "jsdelivr": "lib/fast-lazyload.js",
     "license": "MIT",
     "scripts": {
-        "watch": "npx esbuild src/index.ts --bundle --watch --outfile=lib/f2-lazyload.js",
+        "watch": "npx esbuild src/index.ts --bundle --watch --outfile=docs/f2-lazyload.js",
         "build": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=lib/f2-lazyload.js",
         "postbuild": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=docs/f2-lazyload.js",
         "test": "vitest"
