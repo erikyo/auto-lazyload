@@ -23,6 +23,7 @@
             linkHeader.setAttribute("rel", "preload");
             linkHeader.setAttribute("as", "image");
             linkHeader.setAttribute("href", isElement.src);
+            linkHeader.setAttribute("fetchpriority", "high");
             document.head.appendChild(linkHeader);
           }
           observer.unobserve(isElement);

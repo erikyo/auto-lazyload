@@ -57,6 +57,7 @@ function autoLazy(mutationsList: MutationRecord[]) {
                     linkHeader.setAttribute('rel', 'preload')
                     linkHeader.setAttribute('as', 'image')
                     linkHeader.setAttribute('href', (isElement as HTMLImageElement).src as string)
+                    linkHeader.setAttribute('fetchpriority', 'high')
 
                     document.head.appendChild(linkHeader)
                 }
