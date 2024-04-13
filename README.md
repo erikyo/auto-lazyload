@@ -54,6 +54,7 @@ window.lazyloadOptions = {
     failed: 'my-lazy-failed', // the class name for the failed image
     loaded: 'my-lazy-loaded', // the class name for the lazy loaded image
     attribute: 'data-lazy' // the dataset name for the lazy loaded image (used internally but configurable)
+
 };
 ```
 

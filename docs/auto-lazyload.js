@@ -1,10 +1,45 @@
 "use strict";
 (() => {
-  // src/index.ts
+  // src/const.ts
   var fakeSrc = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-  var options = "lazyloadOptions" in window ? window?.lazyloadOptions : { loading: "lazy-loading", failed: "lazy-failed", on: "lazy", loaded: "lazy-loaded", attribute: "lazy" };
+  var options = "lazyloadOptions" in window ? window?.lazyloadOptions : { loading: "lazy-loading", failed: "lazy-failed", on: "lazy", loaded: "lazy-loaded", attribute: "lazy", nativeSupport: false };
+
+  // src/unveil.ts
+  function unveil(lazyElement) {
+    if (options.attribute + "Bkg" in lazyElement.dataset) {
+      lazyElement.style.backgroundImage = lazyElement.dataset[options.attribute + "Bkg"];
+      lazyElement.removeAttribute("data-" + options.attribute + "-bkg");
+    } else {
+      lazyElement.src = lazyElement.dataset[options.attribute];
+      if ([options.attribute] + "Srcset" in lazyElement.dataset) {
+        lazyElement.srcset = lazyElement.dataset[options.attribute] + "Srcset";
+        lazyElement.removeAttribute("data-" + options.attribute + "-srcset");
+      }
+    }
+    if ("data-" + options.attribute in lazyElement.dataset)
+      lazyElement.removeAttribute("data-" + options.attribute);
+  }
+
+  // src/lazyscript.ts
+  function lazyscript(node) {
+    const delay = Number(node.dataset[options.attribute + "Delay"]) ?? 0;
+    window.addEventListener("load", () => {
+      const script = document.createElement("script");
+      for (let i = 0; i < node.attributes.length; i++) {
+        if (!node.attributes[i].name.includes("data-" + options.attribute))
+          script.setAttribute(node.attributes[i].name, node.attributes[i].value);
+      }
+      script.src = node.dataset[options.attribute];
+      new Promise((resolve) => setTimeout(resolve, Number(delay))).then(() => {
+        node.parentElement?.insertBefore(script, node);
+        node.remove();
+      });
+    });
+  }
+
+  // src/index.ts
   function autoLazyLoad(customOptions) {
-    options = { ...options, ...customOptions };
+    window.lazyloadOptions = { ...options, ...customOptions };
     if ("IntersectionObserver" in window && "MutationObserver" in window) {
       new MutationObserver(autoLazy).observe(document.body, { childList: true, subtree: true });
     } else {
@@ -28,8 +63,11 @@
           }
           observer.unobserve(isElement);
         } else {
-          if (isElement.nodeName !== "DIV") {
-            if (isElement.loading === "lazy")
+          if (isElement.nodeName === "DIV") {
+            isElement.dataset[options.attribute + "Bkg"] = isElement.style.backgroundImage;
+            isElement.style.backgroundImage = "";
+          } else {
+            if (window?.lazyloadOptions?.nativeSupport && isElement.loading === "lazy")
               continue;
             if (!isElement.poster) {
               isElement.poster = fakeSrc;
@@ -38,7 +76,7 @@
             isElement.src = isElement.nodeName !== "IMG" ? fakeSrc : "";
             if (isElement.hasAttribute("srcset")) {
               isElement.dataset[options.attribute + "Srcset"] = isElement.srcset;
-              isElement.srcset = fakeSrc;
+              isElement.srcset = isElement.nodeName !== "IMG" ? fakeSrc : "";
             }
           }
           lazyObserver.observe(isElement);
@@ -67,12 +105,8 @@
     const lazyObserver = new IntersectionObserver(exec);
     for (const mutation of mutationsList) {
       mutation.addedNodes.forEach((node) => {
-        if (node.nodeName === "DIV") {
-          node.dataset[options.attribute + "Bkg"] = node.style.backgroundImage;
-          node.style.backgroundImage = "";
-        }
         if (node.nodeType === 1) {
-          let isElement = node;
+          const isElement = node;
           if (mutation.type === "childList") {
             if (isElement.nodeName === "SCRIPT") {
               if (isElement.dataset[options.attribute])
@@ -84,35 +118,6 @@
         }
       });
     }
-  }
-  function unveil(lazyElement) {
-    if (options.attribute + "Bkg" in lazyElement.dataset) {
-      lazyElement.style.backgroundImage = lazyElement.dataset[options.attribute + "Bkg"];
-      lazyElement.removeAttribute("data-" + options.attribute + "-bkg");
-    } else {
-      lazyElement.src = lazyElement.dataset[options.attribute];
-      if ([options.attribute] + "Srcset" in lazyElement.dataset) {
-        lazyElement.srcset = lazyElement.dataset[options.attribute] + "-srcset";
-        lazyElement.removeAttribute("data-" + options.attribute + "-srcset");
-      }
-    }
-    if ("data-" + options.attribute in lazyElement.dataset)
-      lazyElement.removeAttribute("data-" + options.attribute);
-  }
-  function lazyscript(node) {
-    const delay = Number(node.dataset[options.attribute + "Delay"]) ?? 0;
-    window.addEventListener("load", () => {
-      const script = document.createElement("script");
-      for (let i = 0; i < node.attributes.length; i++) {
-        if (!node.attributes[i].name.includes("data-" + options.attribute))
-          script.setAttribute(node.attributes[i].name, node.attributes[i].value);
-      }
-      script.src = node.dataset[options.attribute];
-      new Promise((resolve) => setTimeout(resolve, Number(delay))).then(() => {
-        node.parentElement?.insertBefore(script, node);
-        node.remove();
-      });
-    });
   }
   function isElementInViewport(elBBox) {
     return elBBox.bottom > 0 && elBBox.right > 0 && elBBox.left < (window.innerWidth || document.documentElement.clientWidth) && elBBox.top < (window.innerHeight || document.documentElement.clientHeight);
