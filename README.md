@@ -35,7 +35,8 @@ Then import the library with:
         failed: 'lazy-failed',
         on: 'lazy',
         loaded: 'lazy-loaded',
-        attribute: 'lazy'
+        attribute: 'lazy',
+        nativeSupport: false
     });
 </script>
 ...
@@ -53,8 +54,8 @@ window.lazyloadOptions = {
     loading: 'my-lazy-loading', // the class name for the lazy loading image
     failed: 'my-lazy-failed', // the class name for the failed image
     loaded: 'my-lazy-loaded', // the class name for the lazy loaded image
-    attribute: 'data-lazy' // the dataset name for the lazy loaded image (used internally but configurable)
-
+    attribute: 'data-lazy', // the dataset name for the lazy loaded image (used internally but configurable)
+    nativeSupport: false // whether to use the native lazyload (e.g. loading="lazy") or not
 };
 ```
 
