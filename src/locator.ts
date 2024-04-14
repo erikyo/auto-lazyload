@@ -38,7 +38,7 @@ export function locator(entries: IntersectionObserverEntry[], observer: Intersec
         } else {
             if (isElement.nodeName === 'DIV') {
                 isElement.dataset[options.attribute + 'Bkg'] = isElement.style.getPropertyValue('background-image')
-                isElement.style.setProperty( 'background-image', 'none')
+                isElement.style.setProperty('background-image', 'none')
             } else {
                 // If the element has the native loading attribute and is not a lazy element, continue
                 if (window?.autolazy?.options.nativeSupport && (isElement as HTMLImageElement).loading === 'lazy') continue
@@ -68,13 +68,15 @@ export function locator(entries: IntersectionObserverEntry[], observer: Intersec
      * @type {IntersectionObserver}
      */
     window.autolazy.observer = lazyloadObserver
+
     /**
      * Update the IntersectionObserver to observe the new elements
      *
      * @param target The selector of the elements to observe
      */
-    window.autolazy.update = (target: string) => {
-        return document.querySelectorAll(target)?.forEach(item=> lazyloadObserver.observe(item))
+    window.autolazy.update = (target?: string) => {
+        const elements = document.querySelectorAll(target || '[data-lazy]')
+        return elements ? elements.forEach(item => lazyloadObserver.observe(item)): null
     }
 
     /**
@@ -89,4 +91,12 @@ export function locator(entries: IntersectionObserverEntry[], observer: Intersec
      * @param element The element to unveil
      */
     window.autolazy.unveil = (element: HTMLElement) => unveil(element)
+
+    /**
+     * Unmount the IntersectionObserver
+     */
+    window.autolazy.unmount = () => {
+        observer.disconnect()
+        lazyloadObserver.disconnect()
+    }
 }

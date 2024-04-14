@@ -23,6 +23,7 @@ export type LazyloadOptions = {
 export type AutoLazy = {
     options: LazyloadOptions
     observer: IntersectionObserver
+    unmount: () => void
     watch: (element: HTMLElement) => void
     update: (target: string) => void
     unveil: (element: HTMLElement) => void

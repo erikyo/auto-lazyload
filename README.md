@@ -49,13 +49,46 @@ If needed, you have the flexibility to customize the lazy loading behavior by se
 ### Example:
 
 ```javascript
-window.lazyloadOptions = {
+window.autolazy = {
     on: 'my-lazy', // the class name for the active lazy loaded image
     loading: 'my-lazy-loading', // the class name for the lazy loading image
     failed: 'my-lazy-failed', // the class name for the failed image
     loaded: 'my-lazy-loaded', // the class name for the lazy loaded image
     attribute: 'data-lazy', // the dataset name for the lazy loaded image (used internally but configurable)
     nativeSupport: false // whether to use the native lazyload (e.g. loading="lazy") or not
+    // The intersectionObserverOptions can also be set here
+    // https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver#instance_properties
+    selector: {
+        root: null,
+        rootMargin: "0px 0px 0px 0px",
+        threshold: 0
+    },
+};
+```
+
+### Api
+
+**autolazy.observer** - The intersection observer instance.
+
+**autolazy.unmount()** - Destroy the library.
+
+**autolazy.update(".target")** - Update the options for the specified target.
+
+**autolazy.update()** - Update the options for all targets.
+
+**autolazy.watch(document.querySelector(".target"))** - Add the specified target to the watch list.
+
+**autolazy.unveil(document.querySelector(".target"))** - Show the specified target.
+
+
+```javascript
+window.lazyloadOptions = {
+    on: 'my-lazy', // the class name for the active lazy loaded image
+    loading: 'my-lazy-loading', // the class name for the lazy loading image
+    failed: 'my-lazy-failed', // the class name for the failed image
+    loaded: 'my-lazy-loaded', // the class name for the lazy loaded image
+    attribute: 'data-lazy', // the dataset name for the lazy loaded image (used internally but configurable)
+    nativeSupport: false, // whether to use the native lazyload (e.g. loading="lazy") or not
     // The intersectionObserverOptions can also be set here
     // https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver#instance_properties
     selector: {
