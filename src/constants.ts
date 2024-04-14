@@ -1,18 +1,14 @@
-import {LazyloadOptions} from './types'
-
-/* Fake src for a small pixel image */
-export const fakeSrc = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-
 /**
  * The default options for the lazy loading function.
  */
 const defaults = {
     loading: 'lazy-loading',
     failed: 'lazy-failed',
-    on: 'lazy',
+    on: 'autolazy',
     loaded: 'lazy-loaded',
     attribute: 'lazy',
     nativeSupport: false,
+    fakeImage: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
     observer: {
         root: null,
         rootMargin: '0px 0px 0px 0px',
