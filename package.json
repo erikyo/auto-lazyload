@@ -1,6 +1,6 @@
 {
     "name": "auto-lazyload",
-    "version": "1.0.5",
+    "version": "1.1.0",
     "description": "A lazy loading library for images, background, videos, Didn't require to change the HTML markup, just works and the performance is amazing!",
     "author": "Erik <erik@codekraft.it>",
     "sideEffects": false,
@@ -28,8 +28,11 @@
     "license": "MIT",
     "scripts": {
         "watch": "npx esbuild src/index.ts --bundle --watch --outfile=docs/auto-lazyload.js",
-        "build": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=lib/auto-lazyload.js",
-        "postbuild": "npx esbuild src/index.ts --format=esm --outdir=lib/esm --minify --mangle-props=_$",
+        "build": "npm run build:iife && npm run build:esm && npm run build:example",
+        "build:example": "npx esbuild src/index.ts --bundle --minify --outfile=docs/auto-lazyload.js",
+        "build:iife": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=lib/auto-lazyload.js",
+        "build:esm": "npx esbuild src/* --format=esm --outdir=lib/esm --minify --mangle-props=_$",
+        "lint": "npx eslint src -fix --ext .ts && npx prettier --write src",
         "test": "vitest"
     },
     "devDependencies": {
