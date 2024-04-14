@@ -1,6 +1,6 @@
 {
     "name": "auto-lazyload",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "A lazy loading library for images, background, videos, Didn't require to change the HTML markup, just works and the performance is amazing!",
     "author": "Erik <erik@codekraft.it>",
     "sideEffects": false,

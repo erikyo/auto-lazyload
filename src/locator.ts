@@ -1,6 +1,6 @@
 import {observe} from './lazyObserver'
 import {isElementInViewport} from './isElementInViewport'
-import {fakeSrc, options} from './constants'
+import {options} from './constants'
 import {unveil} from './unveil'
 
 /**
@@ -45,14 +45,15 @@ export function locator(entries: IntersectionObserverEntry[], observer: Intersec
                 // If the element is a video, add a fake src to the element as a poster image
                 if (!(isElement as HTMLVideoElement).poster) {
                     // if the poster is not set, add a fake src to the element
-                    (isElement as HTMLVideoElement).poster = fakeSrc
+                    (isElement as HTMLVideoElement).poster = options.fakeImage
                 }
                 // If the element is not a lazy element, add the src to the element
-                isElement.dataset[options.attribute] = (isElement as HTMLImageElement).src as string
-                (isElement as HTMLImageElement).src = (isElement.nodeName !== 'IMG') ? fakeSrc : ''
+                isElement.dataset[options.attribute] = (isElement as HTMLMediaElement).src as string
+                (isElement as HTMLMediaElement).src = (isElement.nodeName !== 'IMG') ? options.fakeImage : ''
+                // handle the srcset attribute if it exists
                 if (isElement.hasAttribute('srcset')) {
                     isElement.dataset[options.attribute + 'Srcset'] = (isElement as HTMLImageElement).srcset as string
-                    (isElement as HTMLImageElement).srcset = (isElement.nodeName !== 'IMG') ? fakeSrc : ''
+                    (isElement as HTMLImageElement).srcset = (isElement.nodeName !== 'IMG') ? options.fakeImage : ''
                 }
             }
             lazyloadObserver.observe(isElement)

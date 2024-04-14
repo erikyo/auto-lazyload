@@ -27,16 +27,32 @@ export function lazyObserver(entries: IntersectionObserverEntry[], observer: Int
             // Adds the 'loading' class until the image is loaded
             target.classList.add(options.loading)
 
-            // Adds the 'on' class after the image is loaded
-            target.addEventListener('load', () => {
-                target.classList.add(options.loaded)
-                target.classList.remove(options.loading)
-            })
+            let imageToLoad: null | HTMLImageElement = target.dataset[options.attribute] ? (target as HTMLImageElement) : null
 
-            // Adds the 'failed' class if the image fails to load
-            target.addEventListener('error', () => {
-                target.classList.add(options.failed)
-            })
+            if (!imageToLoad && target.dataset[options.attribute+'Bkg']) {
+
+                // the image is in the background image, so we need to create a new image element to load it to get the event onload
+                imageToLoad = new Image()
+
+                // Gets the background image from the attribute and removes the url and quotes
+                const bkgImage = target.getAttribute(options.attribute+'-bkg')?.replace(/(^url\()|(\)$|["'])/g, '')
+                if (bkgImage) {
+                    imageToLoad.src = bkgImage
+                }
+            }
+
+            if (imageToLoad) {
+                // Adds the 'on' class after the image is loaded
+                imageToLoad.addEventListener('load', () => {
+                    imageToLoad.classList.add(options.loaded)
+                    imageToLoad.classList.remove(options.loading)
+                })
+
+                // Adds the 'failed' class if the image fails to load
+                imageToLoad.addEventListener('error', () => {
+                    imageToLoad.classList.add(options.failed)
+                })
+            }
 
             // Unveils the image if it is in the viewport
             unveil(target as HTMLElement)
