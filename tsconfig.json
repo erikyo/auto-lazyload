@@ -1,15 +1,16 @@
 {
-  "compilerOptions": {
-    "module": "ESNext",
-    "target": "ESNext",
-    "strict": true,
-    "removeComments": true,
-    "pretty": false,
-    // Import non-ES modules as default imports.
-    "outDir": "lib",
-    "rootDir": "src"
-  },
-  "include": [
-    "./src/**/*"
-  ]
+    "compilerOptions": {
+        "module": "ESNext",
+        "target": "ESNext",
+        "moduleResolution": "NodeNext",
+        "strict": true,
+        "removeComments": true,
+        "pretty": false,
+        // Import non-ES modules as default imports.
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "./src/**/*"
+    ]
 }

@@ -1,6 +1,6 @@
 {
     "name": "auto-lazyload",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "A lazy loading library for images, background, videos, Didn't require to change the HTML markup, just works and the performance is amazing!",
     "author": "Erik <erik@codekraft.it>",
     "sideEffects": false,
@@ -23,23 +23,24 @@
     },
     "main": "lib/index.js",
     "module": "lib/esm/",
+    "@types": "lib/@types",
     "unpkg": "lib/auto-lazyload.js",
     "jsdelivr": "lib/auto-lazyload.js",
     "license": "MIT",
     "scripts": {
-        "watch": "npx esbuild src/index.ts --bundle --watch --outfile=docs/auto-lazyload.js",
-        "build": "npm run build:iife && npm run build:esm && npm run build:example",
-        "build:example": "npx esbuild src/index.ts --bundle --minify --outfile=docs/auto-lazyload.js",
+        "watch": "npx esbuild src/index.ts --bundle --watch --sourcemap --outfile=docs/auto-lazyload.js",
+        "clean": "rimraf lib",
+        "build": "npm run clean && npm run build:iife && npm run build:esm && npm run build:example && npm run types",
+        "build:example": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=docs/auto-lazyload.js",
         "build:iife": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=lib/auto-lazyload.js",
-        "build:esm": "npx esbuild src/* --format=esm --outdir=lib/esm --minify --mangle-props=_$",
-        "lint": "npx eslint src -fix --ext .ts && npx prettier --write src",
+        "build:esm": "npx esbuild src/* --format=esm --outdir=lib/esm --minify",
+        "types": "npx tsc --declaration --emitDeclarationOnly --declarationDir lib/@types --pretty false --removeComments false",
+        "lint": "npx @biomejs/biome check --apply src tests",
         "test": "vitest"
     },
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^7.4.0",
-        "@typescript-eslint/parser": "^7.4.0",
+        "@biomejs/biome": "1.6.4",
         "@vitest/coverage-v8": "^1.4.0",
-        "eslint": "^8.57.0",
         "typescript": "^5.4.3",
         "vitest": "^1.4.0"
     }
