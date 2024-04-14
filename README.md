@@ -68,17 +68,46 @@ window.autolazy = {
 
 ### Api
 
-**autolazy.observer** - The intersection observer instance.
+- **Observer**
+The intersection observer instance.
 
-**autolazy.unmount()** - Destroy the library.
+```js
+const observer = autolazy.observer;
 
-**autolazy.update(".target")** - Update the options for the specified target.
+// Example:
+observer.rootMargin = "0px 0px 0px 0px";
+observer.threshold = 0;
 
-**autolazy.update()** - Update the options for all targets.
+observer.observe(document.querySelector(".target"));
+observer.unobserve(document.querySelector(".target"));
+observer.disconnect();
+```
 
-**autolazy.watch(document.querySelector(".target"))** - Add the specified target to the watch list.
+- **Unmount**
+Destroy the library and remove the event listeners.
 
-**autolazy.unveil(document.querySelector(".target"))** - Show the specified target.
+`autolazy.unmount()`
+
+- **Update a target Element**
+Update the options for the specified target.
+
+`autolazy.update(".target")`
+
+- **Update**
+Update the options for all targets.
+
+`autolazy.update()`
+
+
+- **Watch**
+Add the specified target to the watch list.
+
+`autolazy.watch(document.querySelector(".target"))`
+
+- **Unveil**
+  Show the specified target.
+
+`autolazy.unveil(document.querySelector(".target"))`
 
 
 ```javascript
@@ -89,6 +118,7 @@ window.lazyloadOptions = {
     loaded: 'my-lazy-loaded', // the class name for the lazy loaded image
     attribute: 'data-lazy', // the dataset name for the lazy loaded image (used internally but configurable)
     nativeSupport: false, // whether to use the native lazyload (e.g. loading="lazy") or not
+    fakeImage: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', // the fake image url
     // The intersectionObserverOptions can also be set here
     // https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver#instance_properties
     selector: {
