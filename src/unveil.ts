@@ -48,6 +48,61 @@ export function unveil(lazyElement: HTMLElement) {
 			lazyElement.removeAttribute(`data-${options.attribute}-srcset`);
 		}
 	}
+	/**
+	 * Case Include
+	 */
+	if (`${options.attribute}Wrapper` in lazyElement.dataset) {
+		if ((lazyElement.dataset[`${options.attribute}Include`] as string) !== "") {
+			new Promise(() =>
+				fetch(lazyElement.dataset[`${options.attribute}Include`] as string, {
+					method: "GET",
+					headers: {
+						origin: "*",
+						contentType: "text/html",
+					},
+				})
+					.then((res) => res.text())
+					.then((res) => {
+						createElement({
+							lazyElement: lazyElement,
+							wrapperEl: lazyElement.dataset[
+								`${options.attribute}Wrapper`
+							] as string,
+							innerHTML: res,
+						});
+					})
+					.catch((err) => console.error(err)),
+			);
+		} else {
+			createElement({
+				lazyElement: lazyElement,
+				wrapperEl: lazyElement.dataset[`${options.attribute}Wrapper`] as string,
+				innerHTML: lazyElement.innerHTML,
+			});
+		}
+	}
+	/**
+	 * Case Module
+	 */
+	if (`${options.attribute}Module` in lazyElement.dataset) {
+		new Promise(() => {
+			import(lazyElement.dataset[`${options.attribute}Module`] as string).then(
+				() => {
+					// we need to add the type module to the lazy module element so that is copied to the script tag
+					lazyElement.setAttribute("type", "module");
+					createElement({
+						lazyElement: lazyElement,
+						wrapperEl: "script",
+						innerHTML: `import ${
+							lazyElement.dataset[`${options.attribute}Import`]
+						} from '${lazyElement.dataset[`${options.attribute}Module`]}';\n${
+							lazyElement.innerHTML
+						}`,
+					});
+				},
+			);
+		});
+	}
 	// Remove the data-lazy attribute
 	if (`data-${options.attribute}` in lazyElement.dataset)
 		lazyElement.removeAttribute(`data-${options.attribute}`);
