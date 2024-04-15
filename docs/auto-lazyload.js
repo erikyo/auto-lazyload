@@ -1,1 +1,245 @@
-"use strict";(()=>{var u={loading:"lazy-loading",failed:"lazy-failed",on:"autolazy",loaded:"lazy-loaded",attribute:"lazy",nativeSupport:!1,fakeImage:"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",observer:{root:null,rootMargin:"0px 0px 0px 0px",threshold:0}},r="autolazy"in window?{...u,...window?.autolazy}:u;function l(e){let i=Number(e.dataset[`${r.attribute}Delay`])??0;window.addEventListener("load",()=>{let a=document.createElement("script");for(let o=0;o<e.attributes.length;o++)e.attributes[o].name.includes(`data-${r.attribute}`)||a.setAttribute(e.attributes[o].name,e.attributes[o].value);a.src=e.dataset[r.attribute],new Promise(o=>setTimeout(o,Number(i))).then(()=>{e.parentElement?.insertBefore(a,e),e.remove()})})}function s(e){`${r.attribute}Bkg`in e.dataset?(e.style.backgroundImage=e.dataset[`${r.attribute}Bkg`],e.removeAttribute(`data-${r.attribute}-bkg`)):(e.src=e.dataset[r.attribute],`${[r.attribute]}Srcset`in e.dataset&&(e.srcset=e.dataset[`${r.attribute}Srcset`],e.removeAttribute(`data-${r.attribute}-srcset`))),`data-${r.attribute}`in e.dataset&&e.removeAttribute(`data-${r.attribute}`)}function d(e={}){return new IntersectionObserver(m,e)}function m(e,i){for(let a of e)if(a.isIntersecting){let o=a.target;o.classList.add(r.on),o.classList.add(r.loading);let t=o.dataset[r.attribute]?o:null;if(!t&&o.dataset[`${r.attribute}Bkg`]){t=new Image;let n=o.getAttribute(`${r.attribute}-bkg`)?.replace(/(^url\()|(\)$|["'])/g,"");n&&(t.src=n)}t&&(t.addEventListener("load",()=>{t.classList.add(r.loaded),t.classList.remove(r.loading)}),t.addEventListener("error",()=>{t.classList.add(r.failed)})),s(o),i.unobserve(o)}}function c(e){return e.bottom>0&&e.right>0&&e.left<(window.innerWidth||document.documentElement.clientWidth)&&e.top<(window.innerHeight||document.documentElement.clientHeight)}function b(e,i){let a=d(r.observer);for(let o of e){let t=o.target;if(c(o.boundingClientRect)){if(t.nodeName==="IMG"){t.setAttribute("fetchpriority","high"),t.setAttribute("decoding","async");let n=document.createElement("link");n.setAttribute("rel","preload"),n.setAttribute("as","image"),n.setAttribute("href",t.src),n.setAttribute("fetchpriority","high"),document.head.appendChild(n)}i.unobserve(t)}else{if(t.nodeName==="DIV")t.dataset[`${r.attribute}Bkg`]=t.style.getPropertyValue("background-image"),t.style.setProperty("background-image","none");else{if(window?.autolazy?.options.nativeSupport&&t.loading==="lazy")continue;t.poster||(t.poster=r.fakeImage),t.dataset[r.attribute]=t.src,t.src=t.nodeName!=="IMG"?r.fakeImage:"",t.hasAttribute("srcset")&&(t.dataset[`${r.attribute}Srcset`]=t.srcset,t.srcset=t.nodeName!=="IMG"?r.fakeImage:"")}a.observe(t)}}window.autolazy.observer=a,window.autolazy.update=o=>{let t=document.querySelectorAll(o||"[data-lazy]");if(t)for(let n of t)i.observe(n)},window.autolazy.watch=o=>i.observe(o),window.autolazy.unveil=o=>s(o),window.autolazy.unmount=()=>{i.disconnect(),a.disconnect()}}function p(e){let i=new IntersectionObserver(b);for(let a of e)for(let o of a.addedNodes)if(o.nodeType===1){let t=o;a.type==="childList"&&(t.nodeName==="SCRIPT"?t.dataset[r.attribute]&&l(t):["IMG","VIDEO","AUDIO","DIV"].includes(t.nodeName)&&i.observe(t))}}function f(e){window.autolazy={options:{...r,...e}},"IntersectionObserver"in window&&"MutationObserver"in window?new MutationObserver(p).observe(document.body,{childList:!0,subtree:!0}):console.warn("Sorry, your browser does not support automatic lazy loading")}f();})();
+"use strict";
+(() => {
+  // src/constants.ts
+  var defaults = {
+    loading: "lazy-loading",
+    failed: "lazy-failed",
+    on: "autolazy",
+    loaded: "lazy-loaded",
+    attribute: "lazy",
+    nativeSupport: false,
+    proxy: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+    observer: {
+      root: null,
+      rootMargin: "0px 0px 0px 0px",
+      threshold: 0
+    }
+  };
+  var options = "autolazy" in window ? { ...defaults, ...window?.autolazy } : defaults;
+
+  // src/lazyscript.ts
+  function lazyscript(node) {
+    const delay = Number(node.dataset[`${options.attribute}Delay`]) ?? 0;
+    window.addEventListener("load", () => {
+      const script = document.createElement("script");
+      for (let i = 0; i < node.attributes.length; i++) {
+        if (!node.attributes[i].name.includes(`data-${options.attribute}`))
+          script.setAttribute(node.attributes[i].name, node.attributes[i].value);
+      }
+      script.src = node.dataset[options.attribute];
+      new Promise((resolve) => setTimeout(resolve, Number(delay))).then(() => {
+        node.parentElement?.insertBefore(script, node);
+        node.remove();
+      });
+    });
+  }
+
+  // src/unveil.ts
+  function createElement({
+    lazyElement,
+    wrapperEl,
+    innerHTML
+  }) {
+    const wrapper = document.createElement(wrapperEl);
+    wrapper.innerHTML = innerHTML;
+    for (const attribute of lazyElement.attributes) {
+      if (attribute.name.includes(`data-${options.attribute}`))
+        continue;
+      wrapper.setAttribute(attribute.name, attribute.value);
+    }
+    lazyElement.parentElement?.insertBefore(wrapper, lazyElement.nextSibling);
+    lazyElement.remove();
+  }
+  function unveil(lazyElement) {
+    if (`${options.attribute}Bkg` in lazyElement.dataset) {
+      lazyElement.style.backgroundImage = lazyElement.dataset[`${options.attribute}Bkg`];
+      lazyElement.removeAttribute(`data-${options.attribute}-bkg`);
+    } else {
+      lazyElement.src = lazyElement.dataset[options.attribute];
+      if (`${[options.attribute]}Srcset` in lazyElement.dataset) {
+        lazyElement.srcset = lazyElement.dataset[`${options.attribute}Srcset`];
+        lazyElement.removeAttribute(`data-${options.attribute}-srcset`);
+      }
+    }
+    if (`${options.attribute}Wrapper` in lazyElement.dataset) {
+      if (lazyElement.dataset[`${options.attribute}Include`] !== "") {
+        new Promise(
+          () => fetch(lazyElement.dataset[`${options.attribute}Include`], {
+            method: "GET",
+            headers: {
+              origin: "*",
+              contentType: "text/html"
+            }
+          }).then((res) => res.text()).then((res) => {
+            createElement({
+              lazyElement,
+              wrapperEl: lazyElement.dataset[`${options.attribute}Wrapper`],
+              innerHTML: res
+            });
+          }).catch((err) => console.error(err))
+        );
+      } else {
+        createElement({
+          lazyElement,
+          wrapperEl: lazyElement.dataset[`${options.attribute}Wrapper`],
+          innerHTML: lazyElement.innerHTML
+        });
+      }
+    }
+    if (`${options.attribute}Module` in lazyElement.dataset) {
+      new Promise(() => {
+        import(lazyElement.dataset[`${options.attribute}Module`]).then(
+          () => {
+            lazyElement.setAttribute("type", "module");
+            createElement({
+              lazyElement,
+              wrapperEl: "script",
+              innerHTML: `import ${lazyElement.dataset[`${options.attribute}Import`]} from '${lazyElement.dataset[`${options.attribute}Module`]}';
+${lazyElement.innerHTML}`
+            });
+          }
+        );
+      });
+    }
+    if (`data-${options.attribute}` in lazyElement.dataset)
+      lazyElement.removeAttribute(`data-${options.attribute}`);
+  }
+
+  // src/lazyObserver.ts
+  function observe(options2 = {}) {
+    return new IntersectionObserver(lazyObserver, options2);
+  }
+  function lazyObserver(entries, observer) {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        const target = entry.target;
+        target.classList.add(options.on);
+        target.classList.add(options.loading);
+        let imageToLoad = target.dataset[options.attribute] ? target : null;
+        if (!imageToLoad && target.dataset[`${options.attribute}Bkg`]) {
+          imageToLoad = new Image();
+          const bkgImage = target.getAttribute(`${options.attribute}-bkg`)?.replace(/(^url\()|(\)$|["'])/g, "");
+          if (bkgImage) {
+            imageToLoad.src = bkgImage;
+          }
+        }
+        if (imageToLoad) {
+          imageToLoad.addEventListener("load", () => {
+            imageToLoad.classList.add(options.loaded);
+            imageToLoad.classList.remove(options.loading);
+          });
+          imageToLoad.addEventListener("error", () => {
+            imageToLoad.classList.add(options.failed);
+          });
+        }
+        unveil(target);
+        observer.unobserve(target);
+      }
+    }
+  }
+
+  // src/isElementInViewport.ts
+  function isElementInViewport(elBBox) {
+    return elBBox.bottom > 0 && elBBox.right > 0 && elBBox.left < (window.innerWidth || document.documentElement.clientWidth) && elBBox.top < (window.innerHeight || document.documentElement.clientHeight);
+  }
+
+  // src/locator.ts
+  function locator(entries, observer) {
+    const lazyloadObserver = observe(options.observer);
+    for (const entry of entries) {
+      const isElement = entry.target;
+      if (isElementInViewport(entry.boundingClientRect)) {
+        if (isElement.nodeName === "IMG") {
+          isElement.setAttribute("fetchpriority", "high");
+          isElement.setAttribute("decoding", "async");
+          const linkHeader = document.createElement("link");
+          linkHeader.setAttribute("rel", "preload");
+          linkHeader.setAttribute("as", "image");
+          linkHeader.setAttribute(
+            "href",
+            isElement.src
+          );
+          linkHeader.setAttribute("fetchpriority", "high");
+          document.head.appendChild(linkHeader);
+        }
+        if (isElement.dataset[`${options.attribute}Module`] || isElement.dataset[`${options.attribute}Include`]) {
+          isElement.classList.add(options.loaded);
+          unveil(isElement);
+        }
+        observer.unobserve(isElement);
+      } else {
+        if (isElement.nodeName === "DIV" && isElement.style.getPropertyValue("background-image")) {
+          isElement.dataset[`${options.attribute}Bkg`] = isElement.style.getPropertyValue("background-image");
+          isElement.style.setProperty("background-image", "none");
+        } else {
+          if (window?.autolazy?.options.nativeSupport && isElement.loading === "lazy")
+            continue;
+          if (isElement.poster) {
+            isElement.poster = options.proxy;
+          }
+          if (isElement.src) {
+            isElement.dataset[options.attribute] = isElement.src;
+            isElement.src = isElement.nodeName !== "IMG" ? options.proxy : "";
+            if (isElement.hasAttribute("srcset")) {
+              isElement.dataset[`${options.attribute}Srcset`] = isElement.srcset;
+              isElement.srcset = isElement.nodeName !== "IMG" ? options.proxy : "";
+            }
+          }
+        }
+        lazyloadObserver.observe(isElement);
+      }
+    }
+    window.autolazy.observer = lazyloadObserver;
+    window.autolazy.update = (target) => {
+      const elements = document.querySelectorAll(target || "[data-lazy]");
+      if (elements)
+        for (const element of elements)
+          observer.observe(element);
+      return;
+    };
+    window.autolazy.watch = (element) => observer.observe(element);
+    window.autolazy.unveil = (element) => unveil(element);
+    window.autolazy.unmount = () => {
+      observer.disconnect();
+      lazyloadObserver.disconnect();
+    };
+  }
+
+  // src/autoLazy.ts
+  function autoLazy(mutationsList) {
+    const positionObserver = new IntersectionObserver(locator);
+    for (const mutation of mutationsList) {
+      for (const node of mutation.addedNodes) {
+        if (node.nodeType === 1) {
+          const isElement = node;
+          if (mutation.type === "childList") {
+            if (isElement.nodeName === "SCRIPT") {
+              if (isElement.dataset[options.attribute])
+                lazyscript(isElement);
+            } else if (["IMG", "VIDEO", "AUDIO", "DIV"].includes(isElement.nodeName)) {
+              positionObserver.observe(isElement);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // src/index.ts
+  function autoLazyLoad(customOptions) {
+    window.autolazy = {
+      options: { ...options, ...customOptions }
+      // Merge the options with the default options
+    };
+    if ("IntersectionObserver" in window && "MutationObserver" in window) {
+      new MutationObserver(autoLazy).observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    } else {
+      console.warn("Sorry, your browser does not support automatic lazy loading");
+    }
+  }
+  autoLazyLoad();
+})();
+//# sourceMappingURL=auto-lazyload.js.map

@@ -118,7 +118,7 @@ window.lazyloadOptions = {
     loaded: 'my-lazy-loaded', // the class name for the lazy loaded image
     attribute: 'data-lazy', // the dataset name for the lazy loaded image (used internally but configurable)
     nativeSupport: false, // whether to use the native lazyload (e.g. loading="lazy") or not
-    fakeImage: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', // the fake image url
+    proxy: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', // the fake image url
     // The intersectionObserverOptions can also be set here
     // https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver#instance_properties
     selector: {
