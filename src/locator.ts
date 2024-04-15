@@ -38,37 +38,61 @@ export function locator(
 
 				document.head.appendChild(linkHeader);
 			}
+			/**
+			 * Whenever in the viewport Module and Include should be fired immediately, add the 'loaded' class and unveil the element
+			 */
+			if (
+				isElement.dataset[`${options.attribute}Module`] ||
+				isElement.dataset[`${options.attribute}Include`]
+			) {
+				isElement.classList.add(options.loaded);
+				unveil(isElement);
+			}
 			// Watch the element for changes in the viewport
 			observer.unobserve(isElement);
 		} else {
-			if (isElement.nodeName === "DIV") {
+			if (
+				isElement.nodeName === "DIV" &&
+				isElement.style.getPropertyValue("background-image")
+			) {
 				isElement.dataset[`${options.attribute}Bkg`] =
 					isElement.style.getPropertyValue("background-image");
 				isElement.style.setProperty("background-image", "none");
 			} else {
-				// If the element has the native loading attribute and is not a lazy element, continue
+				/**
+				 * If the element has the native loading attribute and is not a lazy element, continue
+				 */
 				if (
 					window?.autolazy?.options.nativeSupport &&
 					(isElement as HTMLImageElement).loading === "lazy"
 				)
 					continue;
-				// If the element is a video, add a fake src to the element as a poster image
-				if (!(isElement as HTMLVideoElement).poster) {
+
+				/**
+				 * If the element is a video, add a fake src to the element as a poster image
+				 */
+				if ((isElement as HTMLVideoElement).poster) {
 					// if the poster is not set, add a fake src to the element
-					(isElement as HTMLVideoElement).poster = options.fakeImage;
+					(isElement as HTMLVideoElement).poster = options.proxy;
 				}
-				// If the element is not a lazy element, add the src to the element
-				isElement.dataset[options.attribute] = (isElement as HTMLMediaElement)
-					.src as string;
-				(isElement as HTMLMediaElement).src =
-					isElement.nodeName !== "IMG" ? options.fakeImage : "";
-				// handle the srcset attribute if it exists
-				if (isElement.hasAttribute("srcset")) {
-					isElement.dataset[`${options.attribute}Srcset`] = (
-						isElement as HTMLImageElement
-					).srcset as string;
-					(isElement as HTMLImageElement).srcset =
-						isElement.nodeName !== "IMG" ? options.fakeImage : "";
+
+				/**
+				 * If the element is a media element
+				 */
+				if ((isElement as HTMLMediaElement).src) {
+					// If the element is a lazy element, add the src to the element
+					isElement.dataset[options.attribute] = (isElement as HTMLMediaElement)
+						.src as string;
+					(isElement as HTMLMediaElement).src =
+						isElement.nodeName !== "IMG" ? options.proxy : "";
+					// handle the srcset attribute if it exists
+					if (isElement.hasAttribute("srcset")) {
+						isElement.dataset[`${options.attribute}Srcset`] = (
+							isElement as HTMLImageElement
+						).srcset as string;
+						(isElement as HTMLImageElement).srcset =
+							isElement.nodeName !== "IMG" ? options.proxy : "";
+					}
 				}
 			}
 			lazyloadObserver.observe(isElement);

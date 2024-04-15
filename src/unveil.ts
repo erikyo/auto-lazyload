@@ -29,7 +29,9 @@ function createElement({
  * @param lazyElement
  */
 export function unveil(lazyElement: HTMLElement) {
-	// Add the background image to the element if it exists else add the src
+	/**
+	 * Add the background image to the element if it exists else add the src
+	 */
 	if (`${options.attribute}Bkg` in lazyElement.dataset) {
 		lazyElement.style.backgroundImage = lazyElement.dataset[
 			`${options.attribute}Bkg`
