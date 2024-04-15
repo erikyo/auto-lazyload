@@ -21,6 +21,8 @@ function createElement({
 	lazyElement.parentElement?.insertBefore(wrapper, lazyElement.nextSibling);
 	// remove the element
 	lazyElement.remove();
+	// return the reference to the new element
+	return wrapper;
 }
 
 /**
@@ -60,18 +62,18 @@ export function unveil(lazyElement: HTMLElement) {
 					method: "GET",
 					headers: {
 						origin: "*",
-						contentType: "text/html",
 					},
 				})
 					.then((res) => res.text())
 					.then((res) => {
-						createElement({
+						const el = createElement({
 							lazyElement: lazyElement,
 							wrapperEl: lazyElement.dataset[
 								`${options.attribute}Wrapper`
 							] as string,
 							innerHTML: res,
 						});
+						el.outerHTML = res;
 					})
 					.catch((err) => console.error(err)),
 			);

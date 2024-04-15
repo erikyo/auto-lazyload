@@ -49,6 +49,7 @@
     }
     lazyElement.parentElement?.insertBefore(wrapper, lazyElement.nextSibling);
     lazyElement.remove();
+    return wrapper;
   }
   function unveil(lazyElement) {
     if (`${options.attribute}Bkg` in lazyElement.dataset) {
@@ -67,15 +68,15 @@
           () => fetch(lazyElement.dataset[`${options.attribute}Include`], {
             method: "GET",
             headers: {
-              origin: "*",
-              contentType: "text/html"
+              origin: "*"
             }
           }).then((res) => res.text()).then((res) => {
-            createElement({
+            const el = createElement({
               lazyElement,
               wrapperEl: lazyElement.dataset[`${options.attribute}Wrapper`],
               innerHTML: res
             });
+            el.outerHTML = res;
           }).catch((err) => console.error(err))
         );
       } else {
