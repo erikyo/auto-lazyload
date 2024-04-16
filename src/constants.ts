@@ -8,7 +8,7 @@ const defaults = {
 	loaded: "lazy-loaded",
 	attribute: "lazy",
 	nativeSupport: false,
-	fakeImage:
+	proxy:
 		"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
 	observer: {
 		root: null,

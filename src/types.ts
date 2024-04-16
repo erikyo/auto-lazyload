@@ -13,7 +13,7 @@ export type LazyloadOptions = {
 	loaded?: string;
 	attribute?: string;
 	nativeSupport?: boolean;
-	fakeImage?: string;
+	proxy?: string;
 	observer?: {
 		root?: HTMLElement;
 		rootMargin?: string;
