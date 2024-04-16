@@ -7,11 +7,11 @@ function createElement({
 }: {
 	lazyElement: HTMLElement;
 	wrapperEl: string;
-	innerHTML: string;
+	innerHTML?: string;
 }) {
 	// create a new element as div and add as innerHTML the include
 	const wrapper = document.createElement(wrapperEl) as HTMLElement;
-	wrapper.innerHTML = innerHTML;
+	if (innerHTML) wrapper.innerHTML = innerHTML;
 	// assign every attribute to the element except the data-lazy stuff
 	for (const attribute of lazyElement.attributes) {
 		if (attribute.name.includes(`data-${options.attribute}`)) continue;
@@ -71,7 +71,6 @@ export function unveil(lazyElement: HTMLElement) {
 							wrapperEl: lazyElement.dataset[
 								`${options.attribute}Wrapper`
 							] as string,
-							innerHTML: res,
 						});
 						el.outerHTML = res;
 					})

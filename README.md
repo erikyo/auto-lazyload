@@ -110,25 +110,6 @@ Add the specified target to the watch list.
 `autolazy.unveil(document.querySelector(".target"))`
 
 
-```javascript
-window.lazyloadOptions = {
-    on: 'my-lazy', // the class name for the active lazy loaded image
-    loading: 'my-lazy-loading', // the class name for the lazy loading image
-    failed: 'my-lazy-failed', // the class name for the failed image
-    loaded: 'my-lazy-loaded', // the class name for the lazy loaded image
-    attribute: 'data-lazy', // the dataset name for the lazy loaded image (used internally but configurable)
-    nativeSupport: false, // whether to use the native lazyload (e.g. loading="lazy") or not
-    proxy: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', // the fake image url
-    // The intersectionObserverOptions can also be set here
-    // https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver#instance_properties
-    selector: {
-        root: null,
-        rootMargin: "0px 0px 0px 0px",
-        threshold: 0
-    },
-};
-```
-
 ### Compatibility
 
 - The script is designed to work in modern browsers that support both Intersection Observer and Mutation Observer APIs.
