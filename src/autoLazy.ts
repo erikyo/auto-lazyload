@@ -19,8 +19,13 @@ export function autoLazy(mutationsList: MutationRecord[]) {
 				const isElement = node as HTMLElement | HTMLScriptElement;
 
 				if (mutation.type === "childList") {
+                    /* Skip the element if it has the 'no-lazy' class */
+                    if (isElement.classList.contains('no-lazy')) {
+                        continue;
+                    }
+
 					if (isElement.nodeName === "SCRIPT") {
-						// If the element is a script tag, load the script in the background
+						/* If the element is a script tag, load the script in the background */
 						if (isElement.dataset[options.attribute])
 							lazyscript(isElement as HTMLScriptElement);
 					} else if (
