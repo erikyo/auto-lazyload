@@ -110,6 +110,11 @@ Add the specified target to the watch list.
 `autolazy.unveil(document.querySelector(".target"))`
 
 
+### Additional Tricks
+
+- **Skip auto lazy load**
+  You can avoid the auto lazy load by adding the `no-lazy` class to the target element.
+
 ### Compatibility
 
 - The script is designed to work in modern browsers that support both Intersection Observer and Mutation Observer APIs.
