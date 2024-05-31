@@ -1,6 +1,6 @@
 {
     "name": "auto-lazyload",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "description": "A lazy loading library for images, background, videos, Didn't require to change the HTML markup, just works and the performance is amazing!",
     "author": "Erik <erik@codekraft.it>",
     "sideEffects": false,
@@ -22,26 +22,26 @@
         "url": "https://github.com/erikyo/auto-lazyload/issues"
     },
     "main": "lib/index.js",
-    "module": "lib/esm/",
-    "@types": "lib/@types",
+    "module": "lib/esm/index.js",
+    "@types": "lib/esm/index.d.ts",
     "unpkg": "lib/auto-lazyload.js",
     "jsdelivr": "lib/auto-lazyload.js",
     "license": "MIT",
     "scripts": {
         "watch": "npx esbuild src/index.ts --bundle --watch --sourcemap --outfile=docs/auto-lazyload.js",
-        "clean": "rimraf lib",
+        "clean": "npx rimraf lib",
         "build": "npm run clean && npm run build:iife && npm run build:esm && npm run build:example && npm run types",
         "build:example": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=docs/auto-lazyload.js",
         "build:iife": "npx esbuild src/index.ts --bundle --minify --mangle-props=_$ --outfile=lib/auto-lazyload.js",
         "build:esm": "npx esbuild src/* --format=esm --outdir=lib/esm --minify",
-        "types": "npx tsc --declaration --emitDeclarationOnly --declarationDir lib/@types --pretty false --removeComments false",
+        "types": "npx tsc --declaration --emitDeclarationOnly --declarationDir lib/esm --pretty false --removeComments false",
         "lint": "npx @biomejs/biome check --apply src tests",
         "test": "vitest"
     },
     "devDependencies": {
-        "@biomejs/biome": "1.6.4",
-        "@vitest/coverage-v8": "^1.4.0",
-        "typescript": "^5.4.3",
-        "vitest": "^1.4.0"
+        "@biomejs/biome": "1.7.3",
+        "@vitest/coverage-v8": "^1.6.0",
+        "typescript": "^5.4.5",
+        "vitest": "^1.6.0"
     }
 }
