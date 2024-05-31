@@ -23,7 +23,7 @@ export function locator(
 		const isElement = entry.target as HTMLElement;
 		if (isElementInViewport(entry.boundingClientRect as DOMRect)) {
 			// add the fetchpriority attribute to the element
-			if (isElement.nodeName === "IMG" && !isElement.classList.contains("nolazy")) {
+			if (isElement.nodeName === "IMG") {
 				isElement.setAttribute("fetchpriority", "high");
 				isElement.setAttribute("decoding", "async");
 
@@ -53,8 +53,7 @@ export function locator(
 		} else {
 			if (
 				isElement.nodeName === "DIV" &&
-				isElement.style.getPropertyValue("background-image") &&
-                !isElement.classList.contains("nolazy")
+				isElement.style.getPropertyValue("background-image")
 			) {
 				isElement.dataset[`${options.attribute}Bkg`] =
 					isElement.style.getPropertyValue("background-image");
