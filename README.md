@@ -16,9 +16,14 @@ What differs with the common lazy loading implementation is that it doesn't requ
 Add the script just after the `body` tag.
 
 ### Using the iife version
-```
-<body>
-<script src="https://unpkg.com/auto-lazyload"></script>
+```html
+<html>
+    <head>...</head>
+    <body>
+        <script src="https://unpkg.com/auto-lazyload"></script>
+        ... the rest of your code ...
+    </body>
+</html>
 ...
 ```
 
@@ -26,19 +31,25 @@ Add the script just after the `body` tag.
 install the library with `npm install auto-lazyload` or `yarn add auto-lazyload`.
 
 Then import the library with:
-```
-<body>
-<script type="module">
-    import AutoLazyLoad from 'auto-lazyload';
-    AutoLazyLoad({
-        loading: 'lazy-loading',
-        failed: 'lazy-failed',
-        on: 'lazy',
-        loaded: 'lazy-loaded',
-        attribute: 'lazy',
-        nativeSupport: false
-    });
-</script>
+```html
+<html>
+    <head>...</head>
+    <body>
+    <script type="module">
+        import AutoLazyLoad from 'auto-lazyload';
+        AutoLazyLoad({
+            on: 'lazy',
+            loading: 'lazy-loading',
+            failed: 'lazy-failed',
+            loaded: 'lazy-loaded',
+            attribute: 'data-lazy',
+            nativeSupport: false,
+            fetchprioritySupport: true
+        });
+    </script>
+    ... the rest of your code ...
+    </body>
+</html>
 ...
 ```
 
@@ -55,7 +66,8 @@ window.autolazy = {
     failed: 'my-lazy-failed', // the class name for the failed image
     loaded: 'my-lazy-loaded', // the class name for the lazy loaded image
     attribute: 'data-lazy', // the dataset name for the lazy loaded image (used internally but configurable)
-    nativeSupport: false // whether to use the native lazyload (e.g. loading="lazy") or not
+    nativeSupport: false, // whether to use the native lazyload (e.g. loading="lazy") or not
+    fetchprioritySupport: true, // whether to add the fetchpriority attribute to the page head or not
     // The intersectionObserverOptions can also be set here
     // https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver#instance_properties
     selector: {
@@ -71,7 +83,7 @@ window.autolazy = {
 - **Observer**
 The intersection observer instance.
 
-```js
+```javascript
 const observer = autolazy.observer;
 
 // Example:
@@ -113,7 +125,21 @@ Add the specified target to the watch list.
 ### Additional Tricks
 
 - **Skip auto lazy load**
-  You can avoid the auto lazy load by adding the `no-lazy` class to the target element.
+
+You can avoid the auto lazy load by adding the `no-lazy` class to the target element.
+
+```javascript
+<img class="no-lazy" src="https://example.com/image.jpg" alt="this image is not lazyloaded" />
+```
+
+- **Disable the fetchpriority attribute**
+
+While the `fetchPrioritySupport` option is enabled by default, and it is recommended to keep it active, this can conflict with other plugins.
+If you need to disable it, this is possible by setting the `fetchPrioritySupport` option to `false` before the script is loaded.
+
+```javascript
+window.autolazy = {fetchPrioritySupport: false};
+```
 
 ### Compatibility
 

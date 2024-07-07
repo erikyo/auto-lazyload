@@ -13,6 +13,7 @@ export type LazyloadOptions = {
 	loaded?: string;
 	attribute?: string;
 	nativeSupport?: boolean;
+    fetchPrioritySupport?: boolean;
 	proxy?: string;
 	observer?: {
 		root?: HTMLElement;
