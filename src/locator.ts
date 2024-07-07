@@ -20,10 +20,13 @@ export function locator(
 	const lazyloadObserver: IntersectionObserver = observe(options.observer);
 
 	for (const entry of entries) {
+        /** @var {HTMLElement} isElement the element to lazy load */
 		const isElement = entry.target as HTMLElement;
 		if (isElementInViewport(entry.boundingClientRect as DOMRect)) {
-			// add the fetchpriority attribute to the element
-			if (isElement.nodeName === "IMG") {
+            /**
+             * Add the "Fetch Priority" attribute to the element if it's an image and the "fetchprioritySupport" flag is enabled
+             */
+			if (isElement.nodeName === "IMG" && options.fetchPrioritySupport) {
 				isElement.setAttribute("fetchpriority", "high");
 				isElement.setAttribute("decoding", "async");
 
